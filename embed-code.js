@@ -1,9 +1,11 @@
+// publisher side options
 window.EmbedCodeSettings = {
 	domain : "example.com"
 };
 
+// embed side options
 window.EmbedCodeOptions = {
-	host : "chgap_partner.com" == window.document.location.host ? "chgap.com" : "ch.placenamehere.com",
+	host : "example.com",
 	filePath : '/js/starter.js',
 	v: '0.5'
 };
@@ -148,7 +150,7 @@ window.EmbedCode || (function(params) {
 			'<', body, ' onload="var d=', documentS, ";d.getElementsByTagName('head')[0].",
 			appendChild, '(d.', createElement, "('script')).", src, "='//",
 			window.EmbedCodeOptions && EmbedCodeOptions.host ||
-				'www.example.com',
+				window.location.host,
 			window.EmbedCodeOptions && EmbedCodeOptions.filePath ||
 				'/cim',
 			'?iv=',
