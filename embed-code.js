@@ -1,49 +1,38 @@
-# The embed code is compressed and minified using the closure compiler.
-# Please run ./compile to build the embed code.
-#
-# Lines starting with #<space> will be removed during compilation.
-# Lines starting with #<A> will be included only for target A.
-# A line can be included in multiple targets if the target names
-# are separated with '|', e.g. #spacebook|myface alert('hello');
+window.EmbedCodeSettings = {
+	domain : "example.com"
+};
+
+window.EmbedCodeOptions = {
+	host : "chgap_partner.com" == window.document.location.host ? "chgap.com" : "ch.placenamehere.com",
+	filePath : '/js/starter.js',
+	v: '0.5'
+};
 
 /**
  * If the code is included twice, the second instance will not adversely
  * affect the first.  
  *   @param {Object} params - see bottom of this file for the definition
- *       of params.  It contains the partner settings for the Meebo Bar. 
+ *       of params.  It contains the partner settings for the EmbedCode Bar. 
  */
-window.Meebo || (function(params) {
+
+window.EmbedCode || (function(params) {
 	var win = window;
 	
 	/**
-	* Return early for extensions if either:
-	*	we are on http(s)?://www.meebo.com/
-	*	we are on a *.dev.meebo.com page
-	*	the page is iframed (top window is not this window)
-	*	the page is a popout (win.opener exists)
-	*/
-	
-	#everywhere|dogfood	if (win.location.toString().match(/^https?:\/\/www\.meebo\.com\/?(messenger)?\/?$/)
-	#everywhere|dogfood		|| win.location.hostname.toString().match(/\.dev\.meebo\.com$/)
-	#everywhere|dogfood		|| win.location.hostname == '127.0.0.1' || win.location.hostname == 'localhost'
-	#everywhere|dogfood		|| win.location.protocol != 'http:'
-	#everywhere|dogfood		|| win.top != win) { return; }
-	
-	/**
-	 * This is the exported Meebo API function 'Meebo' that lives in the 
+	 * This is the exported EmbedCode API function 'EmbedCode' that lives in the 
 	 * global scope.  Partners can execute API functions by calling
-	 *     Meebo("<name of API method>", arg1, arg2, ...);
-	 * Some partners also set custom parameters on the Meebo object for
+	 *     EmbedCode("<name of API method>", arg1, arg2, ...);
+	 * Some partners also set custom parameters on the EmbedCode object for
 	 * controlling certain aspects of the bar.
 	 * 
-	 * The Meebo object also acts as an onload handler for Meebo.  To
-	 * be notified when the Meebo Bar loads, a partner can call:
-	 *     Meebo(function() {
-	 *         ... this function runs once the Meebo Bar loads ...
+	 * The EmbedCode object also acts as an onload handler for EmbedCode.  To
+	 * be notified when the EmbedCode Bar loads, a partner can call:
+	 *     EmbedCode(function() {
+	 *         ... this function runs once the EmbedCode Bar loads ...
 	 *     });
 	 */
 	
-	var Meebo = win.Meebo = win.Meebo || function() { (Meebo._ = Meebo._ || []).push(arguments); },
+	var EmbedCode = win.EmbedCode = win.EmbedCode || function() { (EmbedCode._ = EmbedCode._ || []).push(arguments); },
 		
 		doc = document,
 		body = 'body',
@@ -62,19 +51,19 @@ window.Meebo || (function(params) {
 	
 	/**
 	 * These properties are used for logging certain events that happen
-	 * while the Meebo Bar loads.  We use these to monitor, tune, and
-	 * optimize the performance of the Meebo Bar to ensure it doesn't 
+	 * while the EmbedCode Bar loads.  We use these to monitor, tune, and
+	 * optimize the performance of the EmbedCode Bar to ensure it doesn't 
 	 * block partner sites and minimize the impact of loading the bar.
 	 */
-	Meebo.$ = {0: +new Date};
-	Meebo.T = function(key) {
-		Meebo.$[key] = new Date - Meebo.$[0];
+	EmbedCode.$ = {0: +new Date};
+	EmbedCode.T = function(key) {
+		EmbedCode.$[key] = new Date - EmbedCode.$[0];
 	};
 	
 	/**
-	 * This is the internal version number of the Meebo Bar embed code.
+	 * This is the internal version number of the EmbedCode Bar embed code.
 	 */
-	Meebo.v = 4;
+	EmbedCode.v = (window.EmbedCodeOptions && window.EmbedCodeOptions.v) ? EmbedCodeOptions.v : '1';
 	
 	/**
 	 * Storing string values for certain properties improves the minification of
@@ -85,14 +74,13 @@ window.Meebo || (function(params) {
 		createElement = 'createElement',
 		src = 'src',
 		lang = 'lang',
-		network = 'network',
 		domain = 'domain',
 		
 		/**
-		 * Create placeholder DOM where the Meebo Bar will go.
+		 * Create placeholder DOM where the EmbedCode Bar will go.
 		 */
-		meeboDiv = doc[createElement]('div'),
-		el = meeboDiv[appendChild](doc[createElement]('m')),
+		ecDiv = doc[createElement]('div'),
+		el = ecDiv[appendChild](doc[createElement]('m')),
 		iframe = doc[createElement]('iframe'),
 		
 		/**
@@ -108,8 +96,8 @@ window.Meebo || (function(params) {
 		contentWindow = 'contentWindow',
 		domainSrc,
 		onload = function() {
-			Meebo.T(load);
-			Meebo(load);
+			EmbedCode.T(load);
+			EmbedCode(load);
 		};
 	
 	if (win[addEventListener]) {
@@ -122,20 +110,19 @@ window.Meebo || (function(params) {
 	 * Prepare the placeholder DOM (make it invisible) and insert it
 	 * into the DOM.
 	 */
-	meeboDiv.style.display = 'none';
+	ecDiv.style.display = 'none';
 
 	/**
-	 * For the extensions, we'd like to append the #meebo div to the bottom of
+	 * For the extensions, we'd like to append the #ec div to the bottom of
 	 * the page so that we're drawn on top of elements with the same z-index.
 	 * Unfortunately, there is an IE issue when appending elements with
 	 * innerHTML'ed contents while parsing happening. This special case should
 	 * be safe for extensions, in which the DOM has finished loading at the time
 	 * of embed code execution.
 	 */
-	#everywhere|dogfood bodyEl[appendChild](meeboDiv).id = 'meebo';
-	#dashboard|meebo-site|spacebook|myface bodyEl.insertBefore(meeboDiv, bodyEl.firstChild).id = 'meebo';
+	bodyEl[appendChild](ecDiv).id = 'ec';
 	iframe.frameBorder = "0";
-	iframe.id = "meebo-iframe";
+	iframe.id = "ec-iframe";
 	iframe.allowTransparency = "true";
 	el[appendChild](iframe);
 
@@ -160,18 +147,14 @@ window.Meebo || (function(params) {
 		return [
 			'<', body, ' onload="var d=', documentS, ";d.getElementsByTagName('head')[0].",
 			appendChild, '(d.', createElement, "('script')).", src, "='//",
-			#spacebook|myface /dev\.meebo\.com/.test(document.location.host)?document.location.host : params.host || 'cim.meebo.com',
-			#meebo-site '{{ bar_hostname }}',
-			#dashboard 'cim.meebo.com',
-			#everywhere|dogfood window.MeeboExtensionOptions && MeeboExtensionOptions.domain ||
-				#everywhere 'www.meebo.com',
-				#dogfood 'alpha.meebo.com',
-			'/cim?iv=', Meebo.v, '&',
-			network, '=', params[network],
-			#meebo-site '&v={{ bar_version }}',
-			#everywhere|dogfood '&extension=true',
-			#spacebook|myface params['barType'] == 'extension' || params['barType'] == 'mini' ? '&'+params['barType']+'=true' : '',
-			params[lang] ? '&' + lang + '=' + params[lang] : '',
+			window.EmbedCodeOptions && EmbedCodeOptions.host ||
+				'www.example.com',
+			window.EmbedCodeOptions && EmbedCodeOptions.filePath ||
+				'/cim',
+			'?iv=',
+			EmbedCode.v,
+			//'&extension=true',
+			//params[lang] ? '&' + lang + '=' + params[lang] : '',
 			params[domain] ? '&' + domain + '=' + params[domain] : '',
 			'\'"></', body, '>'
 		].join('');
@@ -193,13 +176,5 @@ window.Meebo || (function(params) {
 	/**
 	 * All done! Record the time it took to run this code (should be < 10ms).
 	 */
-	Meebo.T(1);
-})({
-	#spacebook|myface|meebo-site host: (function(){var match=document.cookie.match(/build=([\w\.-]+)/); return match ? match[1] : null})(),
-	#spacebook|myface barType: (function(){var match=document.cookie.match(/barType=([\w]+)/); return match ? match[1] : null})(),
-	#spacebook  network: 'spacebook'
-	#myface     network: 'myface'
-	#meebo-site network: 'meebo-site'
-	#everywhere|dogfood network: 'everywhere'
-	#dashboard  network: '%(partner)s'
-});
+	EmbedCode.T(1);
+})(window.EmbedCodeSettings);
